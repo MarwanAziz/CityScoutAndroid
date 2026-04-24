@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "City Scout"
 include(":app")
+include(":ui")
