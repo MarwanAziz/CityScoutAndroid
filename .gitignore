@@ -1,15 +1,48 @@
 *.iml
 .gradle
 /local.properties
+local.properties
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+.idea/deploymentTargetDropDown.xml
+.idea/compiler.xml
+.idea/kotlinc.xml
+.idea/gradle.xml
+.idea/vcs.xml
+.kotlin
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+**/build/
+*/build/
+
+# Packaged artifacts
+*.apk
+*.ap_
+*.aab
+*.aar
+*.bundle
+
+# Dex and Java/Kotlin bytecode
+*.dex
+*.class
+
+# Logs and crash reports
+*.log
+hs_err_pid*
+replay_pid*
+
+# Generated files from external/native builds
+externalNativeBuild/
+.externalNativeBuild/
+.cxx/
+
+# Gradle and Kotlin local caches
+.gradletasknamecache
+captures/
