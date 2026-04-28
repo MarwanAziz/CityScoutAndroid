@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,6 +89,7 @@ private fun SearchView(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val error = searchViewModel.searchError.collectAsState()
+    val isLoading = searchViewModel.loading.collectAsState()
     OutlinedTextField(
         value = searchQuery,
         onValueChange = {
@@ -105,34 +108,45 @@ private fun SearchView(
         modifier = Modifier.padding(vertical = 16.dp)
     )
 
-    if (error.value.isNotEmpty() && searchQuery.isNotEmpty()) {
+    if (isLoading.value) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                error.value,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(),
-                color = androidx.compose.ui.graphics.Color.Red
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Absolute.Center
+            CircularProgressIndicator()
+        }
+    } else {
+        if (error.value.isNotEmpty() && searchQuery.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(
-                    onClick = {
-                        scope.launch {
-                            searchViewModel.searchCity(searchQuery)
-                        }
-                    }
+                Text(
+                    error.value,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(),
+                    color = androidx.compose.ui.graphics.Color.Red
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Absolute.Center
                 ) {
-                    Text("Retry")
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                searchViewModel.searchCity(searchQuery)
+                            }
+                        }
+                    ) {
+                        Text("Retry")
+                    }
                 }
             }
         }
     }
+
 }
 
 @Composable
