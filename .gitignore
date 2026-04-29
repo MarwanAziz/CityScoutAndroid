@@ -1,4 +1,5 @@
 *.iml
+.idea/
 .gradle
 /local.properties
 local.properties
@@ -47,3 +48,4 @@ externalNativeBuild/
 # Gradle and Kotlin local caches
 .gradletasknamecache
 captures/
+deviceManager.xml

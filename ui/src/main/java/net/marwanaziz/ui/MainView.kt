@@ -4,12 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
@@ -28,19 +27,36 @@ import net.marwanaziz.cityscoutshared.SearchCityResult
 fun MainView() {
     val navigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
-    var selectedCity by rememberSaveable(stateSaver = selectedCitySaver) { mutableStateOf<SearchCityResult?>(null) }
+    var selectedCityName by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedCityCountry by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedCityLat by rememberSaveable { mutableStateOf<Double?>(null) }
+    var selectedCityLon by rememberSaveable { mutableStateOf<Double?>(null) }
+    val selectedCity =
+        if (selectedCityName != null && selectedCityCountry != null && selectedCityLat != null && selectedCityLon != null) {
+            SearchCityResult(
+                name = selectedCityName!!,
+                country = selectedCityCountry!!,
+                lat = selectedCityLat!!,
+                lon = selectedCityLon!!
+            )
+        } else {
+            null
+        }
 
     BackHandler(navigator.canNavigateBack()) {
         scope.launch {
             navigator.navigateBack()
         }
-        selectedCity = null
+        selectedCityName = null
+        selectedCityCountry = null
+        selectedCityLat = null
+        selectedCityLon = null
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         ListDetailPaneScaffold(
@@ -48,7 +64,10 @@ fun MainView() {
             listPane = {
                 SearchCityView(
                     onCitySelectedListener = {
-                        selectedCity = it
+                        selectedCityName = it.name
+                        selectedCityCountry = it.country
+                        selectedCityLat = it.lat
+                        selectedCityLon = it.lon
                         scope.launch {
                             navigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
                         }
@@ -76,21 +95,3 @@ fun MainView() {
 fun MainViewPreview() {
     MainView()
 }
-
-private val selectedCitySaver = Saver<SearchCityResult?, List<Any>>(
-    save = { city ->
-        city?.let { listOf(it.name, it.country, it.lat, it.lon) } ?: emptyList()
-    },
-    restore = { data ->
-        if (data.isEmpty()) {
-            null
-        } else {
-            SearchCityResult(
-                name = data[0] as String,
-                country = data[1] as String,
-                lat = data[2] as Double,
-                lon = data[3] as Double
-            )
-        }
-    }
-)

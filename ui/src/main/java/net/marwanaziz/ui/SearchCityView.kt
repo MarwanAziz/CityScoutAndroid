@@ -23,9 +23,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,14 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.marwanaziz.cityscoutshared.SearchCityResult
 import net.marwanaziz.cityscoutshared.SearchCityViewModel
@@ -50,29 +47,18 @@ import net.marwanaziz.cityscoutshared.SearchCityViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchCityView(viewModel: SearchCityViewModel = hiltViewModel<SearchCityHiltViewModel>().searchViewModel, onCitySelectedListener: (SearchCityResult) -> Unit) {
-    SearchCityScreenContent(viewModel, onCitySelectedListener)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel,  onCitySelectedListener: (SearchCityResult) -> Unit) {
-    val searchResult = searchViewModel.searchCityResult.collectAsState()
-    val scope = rememberCoroutineScope()
+    val searchResults = viewModel.searchCityResult.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.search_for_city_title)) },
-                colors = TopAppBarColors(
-                    subtitleContentColor = Color.Transparent,
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent,
-                    navigationIconContentColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = Color.Transparent
                 )
             )
         },
-        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) { innerPadding ->
         Column(
@@ -80,27 +66,31 @@ private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel,  onCit
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            SearchView(scope, searchViewModel)
-            SearchResultView(searchResult, onCitySelectedListener)
+            SearchInputSection(viewModel)
+            SearchResultList(searchResults.value, onCitySelectedListener)
         }
     }
 }
 
 @Composable
-private fun SearchView(
-    scope: CoroutineScope,
-    searchViewModel: SearchCityViewModel
-) {
+private fun SearchInputSection(searchViewModel: SearchCityViewModel) {
     var searchQuery by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
     val error = searchViewModel.searchError.collectAsState()
     val isLoading = searchViewModel.loading.collectAsState()
+
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isBlank()) {
+            return@LaunchedEffect
+        }
+        delay(350)
+        searchViewModel.searchCity(searchQuery)
+    }
+
     OutlinedTextField(
         value = searchQuery,
         onValueChange = {
             searchQuery = it
-            scope.launch {
-                searchViewModel.searchCity(it)
-            }
         },
         modifier = Modifier
             .fillMaxWidth(),
@@ -120,45 +110,50 @@ private fun SearchView(
         ) {
             CircularProgressIndicator()
         }
-    } else {
-        if (error.value.isNotEmpty() && searchQuery.isNotEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(),
-                verticalArrangement = Arrangement.SpaceBetween
+        return
+    }
+
+    if (error.value.isNotEmpty() && searchQuery.isNotEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                error.value,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                color = Color.Red
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Absolute.Center
             ) {
-                Text(
-                    error.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(),
-                    color = androidx.compose.ui.graphics.Color.Red
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Absolute.Center
-                ) {
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                searchViewModel.searchCity(searchQuery)
-                            }
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            searchViewModel.searchCity(searchQuery)
                         }
-                    ) {
-                        Text(stringResource(R.string.retry))
                     }
+                ) {
+                    Text(stringResource(R.string.retry))
                 }
             }
         }
     }
-
 }
 
 @Composable
-private fun SearchResultView(searchResult: State<List<SearchCityResult>>, onCitySelectedListener: (SearchCityResult) -> Unit) {
+private fun SearchResultList(
+    searchResults: List<SearchCityResult>,
+    onCitySelectedListener: (SearchCityResult) -> Unit
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(searchResult.value) { result ->
+        items(searchResults) { result ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -191,57 +186,6 @@ private fun SearchResultView(searchResult: State<List<SearchCityResult>>, onCity
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-@Preview
-fun SearchCityViewPreview() {
-    SearchCityView(FakeSearchViewModel(), { selectedCity ->
-        print("Selected city ${selectedCity.name}")
-    })
-}
-
-private class FakeSearchViewModel: SearchCityViewModel {
-    override val searchCityResult: StateFlow<List<SearchCityResult>>
-    override val searchError: StateFlow<String>
-    override val loading: StateFlow<Boolean>
-    private var _searchCityResult = MutableStateFlow<List<SearchCityResult>>(emptyList())
-    private  var _searchError: MutableStateFlow<String> = MutableStateFlow("")
-    private  var _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    constructor() {
-        searchCityResult = _searchCityResult
-        searchError = _searchError
-        loading = _loading
-    }
-
-    override suspend fun searchCity(city: String) {
-        if (city.count() < 2) {
-            _searchError.value = "Preview error test"
-            _searchCityResult.value = emptyList()
-        } else {
-            _searchError.value = ""
-            _searchCityResult.value = listOf(
-                SearchCityResult(
-                    "London",
-                    "United Kingdom",
-                    0.0,
-                    0.0
-                ),
-                SearchCityResult(
-                    "Paris",
-                    "France",
-                    0.0,
-                    0.0
-                ),
-                SearchCityResult(
-                    "Rome",
-                    "Italy",
-                    0.0,
-                    0.0
-                )
-            )
         }
     }
 }
