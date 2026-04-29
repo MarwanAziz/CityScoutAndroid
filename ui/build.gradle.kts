@@ -28,6 +28,10 @@ android {
 
 dependencies {
     implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.lint)
+    implementation(libs.androidx.compose.material3.extended)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.cityscoutshared)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)

@@ -15,6 +15,8 @@ material3Adaptive = "1.0.0-alpha06"
 hiltNavigationCompose = "1.2.0"
 hilt = "2.59.2"
 ksp = "2.3.5"
+material3Lint = "1.4.0"
+coil = "3.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +35,10 @@ androidx-compose-material3-adaptive = { group = "androidx.compose.material3", na
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+androidx-compose-material3-lint = { group = "androidx.compose.material3", name = "material3-lint", version.ref = "material3Lint" }
+androidx-compose-material3-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "composeUi" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

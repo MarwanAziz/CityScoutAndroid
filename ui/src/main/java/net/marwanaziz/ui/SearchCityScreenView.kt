@@ -1,5 +1,6 @@
 package net.marwanaziz.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,13 +48,13 @@ import net.marwanaziz.cityscoutshared.SearchCityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchCityScreenView(viewModel: SearchCityViewModel = hiltViewModel<SearchCityScreenHiltViewModel>().searchViewModel) {
-    SearchCityScreenContent(viewModel)
+fun SearchCityScreenView(viewModel: SearchCityViewModel = hiltViewModel<SearchCityScreenHiltViewModel>().searchViewModel, onCitySelectedListener: (SearchCityResult) -> Unit) {
+    SearchCityScreenContent(viewModel, onCitySelectedListener)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel) {
+private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel,  onCitySelectedListener: (SearchCityResult) -> Unit) {
     val searchResult = searchViewModel.searchCityResult.collectAsState()
     val scope = rememberCoroutineScope()
     Scaffold(
@@ -60,11 +62,12 @@ private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel) {
             TopAppBar(
                 title = { Text("Search For City") },
                 colors = TopAppBarColors(
-                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                    scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                    navigationIconContentColor = androidx.compose.ui.graphics.Color.Transparent,
+                    subtitleContentColor = Color.Transparent,
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                    navigationIconContentColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = androidx.compose.ui.graphics.Color.Transparent
+                    actionIconContentColor = Color.Transparent
                 )
             )
         },
@@ -77,7 +80,7 @@ private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel) {
                 .padding(innerPadding)
         ) {
             SearchView(scope, searchViewModel)
-            SearchResultView(searchResult)
+            SearchResultView(searchResult, onCitySelectedListener)
         }
     }
 }
@@ -150,7 +153,7 @@ private fun SearchView(
 }
 
 @Composable
-private fun SearchResultView(searchResult: State<List<SearchCityResult>>) {
+private fun SearchResultView(searchResult: State<List<SearchCityResult>>, onCitySelectedListener: (SearchCityResult) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -158,7 +161,10 @@ private fun SearchResultView(searchResult: State<List<SearchCityResult>>) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(),
+                    .padding()
+                    .clickable {
+                        onCitySelectedListener(result)
+                    },
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
@@ -191,7 +197,9 @@ private fun SearchResultView(searchResult: State<List<SearchCityResult>>) {
 @Composable
 @Preview
 fun SearchCityScreenViewPreview() {
-    SearchCityScreenView(FakeSearchViewModel())
+    SearchCityScreenView(FakeSearchViewModel(), { selectedCity ->
+        print("Selected city ${selectedCity.name}")
+    })
 }
 
 private class FakeSearchViewModel: SearchCityViewModel {

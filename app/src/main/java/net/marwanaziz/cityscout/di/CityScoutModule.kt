@@ -8,6 +8,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 import net.marwanaziz.cityscout.KeyProvider
 import net.marwanaziz.cityscoutshared.CityScoutFactory
+import net.marwanaziz.cityscoutshared.CityWeatherViewModel
 import net.marwanaziz.cityscoutshared.Remote
 import net.marwanaziz.cityscoutshared.RemoteKeys
 import net.marwanaziz.cityscoutshared.SearchCityViewModel
@@ -38,4 +39,9 @@ object CityScoutModule {
     @Singleton
     fun provideSearchCityViewModel(remote: Remote): SearchCityViewModel =
         CityScoutFactory.creatSearchCityViewModel(remote)
+
+    @Provides
+    @Singleton
+    fun provideCityWeatherViewModel(remote: Remote): CityWeatherViewModel =
+        CityScoutFactory.createWeatherViewModel(remote)
 }
