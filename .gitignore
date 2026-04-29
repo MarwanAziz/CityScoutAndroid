@@ -9,6 +9,7 @@ local.properties
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .idea/deploymentTargetDropDown.xml
+.idea/deploymentTargetSelector.xml
 .idea/compiler.xml
 .idea/kotlinc.xml
 .idea/gradle.xml
