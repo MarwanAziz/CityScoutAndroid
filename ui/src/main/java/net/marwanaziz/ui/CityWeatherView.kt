@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,7 +103,7 @@ fun CityWeatherView(
 
 @Composable
 private  fun TempToggleView(viewModel: CityWeatherViewModel) {
-    val options = listOf("Celsius", "Fahrenheit")
+    val options = listOf(stringResource(R.string.celsius), stringResource(R.string.fahrenheit))
     val isCelsius = viewModel.isCelsius.collectAsState()
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -189,19 +190,19 @@ private fun CurrentWeather(viewModel: CityWeatherViewModel) {
             WeatherStat(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Filled.WaterDrop,
-                label = "Humidity",
+                label = stringResource(R.string.humidity),
                 value = humidity.value
             )
             WeatherStat(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Air,
-                label = "Wind",
+                label = stringResource(R.string.wind),
                 value = viewModel.weatherWindSpeed.collectAsState().value
             )
             WeatherStat(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Visibility,
-                label = "Visibility",
+                label = stringResource(R.string.visibility),
                 value = viewModel.weatherVisibility.collectAsState().value
             )
         }
@@ -224,8 +225,6 @@ private fun AsyncMedia(imageUrl: String, size: Dp = 64.dp, ) {
         contentScale = ContentScale.Fit
     ) {
         when (val state = painter.state) {
-            is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
-            is AsyncImagePainter.State.Error -> Text("Error")
             else -> SubcomposeAsyncImageContent()
         }
     }
@@ -288,7 +287,7 @@ private fun ForecastView(viewModel: CityWeatherViewModel) {
     ) {
         Spacer(modifier = Modifier.padding(bottom = 16.dp))
         Text(
-            "${forecast.value.size}-DAY FORECAST",
+            stringResource(R.string.day_forecast, forecast.value.size),
             fontWeight = FontWeight.Bold,
             fontSize = 17.sp,
             color = MaterialTheme.colorScheme.secondary

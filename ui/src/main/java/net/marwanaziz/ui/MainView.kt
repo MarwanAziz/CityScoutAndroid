@@ -32,7 +32,7 @@ fun MainView() {
         ListDetailPaneScaffold(
             scaffoldState = navigator.scaffoldState,
             listPane = {
-                SearchCityScreenView(
+                SearchCityView(
                     onCitySelectedListener = {
                         scope.launch {
                             navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)

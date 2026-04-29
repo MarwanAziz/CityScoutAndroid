@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +49,7 @@ import net.marwanaziz.cityscoutshared.SearchCityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchCityScreenView(viewModel: SearchCityViewModel = hiltViewModel<SearchCityScreenHiltViewModel>().searchViewModel, onCitySelectedListener: (SearchCityResult) -> Unit) {
+fun SearchCityView(viewModel: SearchCityViewModel = hiltViewModel<SearchCityHiltViewModel>().searchViewModel, onCitySelectedListener: (SearchCityResult) -> Unit) {
     SearchCityScreenContent(viewModel, onCitySelectedListener)
 }
 
@@ -60,7 +61,7 @@ private fun SearchCityScreenContent(searchViewModel: SearchCityViewModel,  onCit
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search For City") },
+                title = { Text(stringResource(R.string.search_for_city_title)) },
                 colors = TopAppBarColors(
                     subtitleContentColor = Color.Transparent,
                     containerColor = Color.Transparent,
@@ -103,7 +104,7 @@ private fun SearchView(
         },
         modifier = Modifier
             .fillMaxWidth(),
-        label = { Text("Search city") },
+        label = { Text(stringResource(R.string.search_city_label)) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         singleLine = true,
     )
@@ -143,7 +144,7 @@ private fun SearchView(
                             }
                         }
                     ) {
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
@@ -196,8 +197,8 @@ private fun SearchResultView(searchResult: State<List<SearchCityResult>>, onCity
 
 @Composable
 @Preview
-fun SearchCityScreenViewPreview() {
-    SearchCityScreenView(FakeSearchViewModel(), { selectedCity ->
+fun SearchCityViewPreview() {
+    SearchCityView(FakeSearchViewModel(), { selectedCity ->
         print("Selected city ${selectedCity.name}")
     })
 }
