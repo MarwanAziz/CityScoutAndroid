@@ -1,5 +1,6 @@
 package net.marwanaziz.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,12 @@ import net.marwanaziz.cityscoutshared.SearchCityResult
 fun MainView() {
     val navigator = rememberListDetailPaneScaffoldNavigator<SearchCityResult>()
     val scope = rememberCoroutineScope()
+
+    BackHandler(navigator.canNavigateBack()) {
+        scope.launch {
+            navigator.navigateBack()
+        }
+    }
 
     Box(
         modifier = Modifier
